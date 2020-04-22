@@ -2,6 +2,9 @@
 
 import subprocess
 import re
+import time
+
+cooldown_ = 5
 
 rex_title = re.compile('Discord$')
 def discord_window_id():
@@ -32,9 +35,12 @@ def run_forever():
     with subprocess.Popen(['dbus-monitor',
                 "interface='org.freedesktop.Notifications'"],
                stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
+        last = 0
         for line in p.stdout:
             if 'discord' in line.lower():
-                notify()
+                if time.time()-last > cooldown_:
+                    notify()
+                    last = time.time()
 
 if __name__ == "__main__":
     run_forever()
